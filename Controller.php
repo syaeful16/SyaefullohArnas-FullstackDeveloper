@@ -4,7 +4,7 @@ require_once 'Database.php';
 
 class Controller extends Database {
   private $name, $gender, $age;
-  private $data = [];
+  // public $data = [];
   private $countMale;
 
   public function insertData($name, $gender, $age) {
@@ -23,14 +23,18 @@ class Controller extends Database {
   }
 
   public function getAllData() {
-    $query = "SELECT * FROM friends";
-    $result = mysqli_query($this->conn, $query);
-
+    $result = mysqli_query($this->conn, "SELECT * FROM friends");
+    $rows = [];
     while($row = mysqli_fetch_assoc($result)) {
-      $this->data = $row;
+        $rows[] = $row;
     }
 
-    return $this->data;
+    return $rows;
+  }
+
+  public function getTotalData() {
+    $result = mysqli_query($this->conn, "SELECT * FROM friends");
+    return mysqli_num_rows($result);
   }
 
   public function getTotalMale() {
@@ -40,6 +44,52 @@ class Controller extends Database {
 
     return $total;
   }
+
+  public function getTotalFemale() {
+    $sql = "SELECT gender FROM friends WHERE gender='Perempuan'";
+    $result = mysqli_query($this->conn, $sql);
+    $total = mysqli_num_rows($result);
+
+    return $total;
+  }
+
+  public function getMaleUnder19() {
+    $sql = "SELECT * FROM friends WHERE age<=19 && gender='Laki-laki'";
+    $result = mysqli_query($this->conn, $sql);
+    $total = mysqli_num_rows($result);
+    
+    return $total;
+  }
+  
+  public function getMaleAbove19() {
+    $sql = "SELECT * FROM friends WHERE age>=20 && gender='Laki-laki'";
+    $result = mysqli_query($this->conn, $sql);
+    $total = mysqli_num_rows($result);
+    
+    return $total;
+  }
+
+  public function getFemaleUnder19() {
+    $sql = "SELECT * FROM friends WHERE age<=19 && gender='Perempuan'";
+    $result = mysqli_query($this->conn, $sql);
+    $total = mysqli_num_rows($result);
+    
+    return $total;
+  }
+  
+  public function getFemaleAbove19() {
+    $sql = "SELECT * FROM friends WHERE age>=20 && gender='Perempuan'";
+    $result = mysqli_query($this->conn, $sql);
+    $total = mysqli_num_rows($result);
+    
+    return $total;
+  }
+
+  public function getPercentace($func, $total) {
+    $result = ($func / $total) * 100;
+    return $result; 
+  }
+
 }
 
 ?>

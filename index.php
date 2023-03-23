@@ -9,20 +9,12 @@ $_SESSION['status'] = '';
 
 $user = new Controller();
 
-// $new->insertData('Saya', 'P', 23);
-
-// $data = $new->getAllData();
-
-// foreach ($data as $d) {
-//   echo $d;
-// }
 if(isset($_POST['save'])) {
   $name = $_POST['name'];
   $gender = $_POST['gender'];
   $age = $_POST['age'];
 
   $user->insertData($name, $gender, $age);
-  header("Refresh:5");
 }
 
 ?>
@@ -34,9 +26,12 @@ if(isset($_POST['save'])) {
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bulma.min.css">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js" integrity="sha512-JPcRR8yFa8mmCsfrw4TNte1ZvF1e3+1SdGMslZvmrzDYxS69J7J49vkFL8u6u8PlPJK+H3voElBtUCzaXj+6ig==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -50,16 +45,8 @@ if(isset($_POST['save'])) {
     }
   </script>
 </head>
-<body class="w-screen h-screen bg-slate-100 py-20 relative">
-  <?php if($_SESSION['status'] === 'success'): ?>
-    <div class="bg-green-100 absolute top-10 left-0 py-4 px-16 transform translate-y-full transition-transform duration-500 rounded shadow ring-2 ring-green-300">
-      <!-- <h1 class=""><?= $_SESSION['message'] ?></h1> -->
-      <h1 class="text-lg font-medium">Berhasil</h1>
-      <p>Data Anda berhasil ditambahkan</p>
-    </div>
-  <?php endif; ?>
-
-  <div class="h-full grid grid-cols-dahsboard 2xl:mx-[16rem] rounded-lg shadow-lg bg-[#f5f5f5]">
+<body class="w-screen h-screen relative bg-[#f5f2ee]">
+  <div class="h-full grid md:grid-cols-[460px_1fr] xl:grid-cols-dahsboard 2xl:mx-[16rem]">
     <!-- input data -->
     <div class="w-full h-full bg-white flex flex-col justify-center px-[4rem]">
       <form action="" method="post" id="form-data">
@@ -107,57 +94,112 @@ if(isset($_POST['save'])) {
           <input type="text" name="age" id="age" placeholder="Masukkan usia" class="mt-1 px-3 py-3 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1 md:text-lg" required>
         </div>
         <!-- btn submit -->
-        <button type="submit" name="save" class="w-full bg-slate-800 py-3 rounded-md text-white text-lg font-bold uppercase mt-4">Simpan</button>
+        <button type="submit" name="save" class="w-full bg-[#485FC7] py-3 rounded-md text-white text-lg font-bold uppercase mt-4">Simpan</button>
       </form>
     </div>
 
     <!-- Dashboard -->
-    <div class="w-full max-h-full bg-[#f6f6f6] p-8">
-      <div class="w-full h-auto bg-white rounded-lg shadow grid grid-cols-[300px_1fr] gap-10 p-6">
-        <div class="flex flex-col gap-4">
-          <div class="bg-[#f6f6f6] py-4 px-8 rounded h-full">
-            <h3>Total Laki-laki</h3>
-            <h1 class="text-2xl"><?= $user->getTotalMale(); ?></h1>
-          </div>
-          <div class="bg-blue-100 py-4 px-8 rounded h-full">
-            <h3>Total Perempuan</h3>
-            <h1 class="text-2xl"><?= $user->getTotalMale(); ?></h1>
-          </div>
+    <div class="w-full h-full flex flex-col bg-[#f6f6f6] p-8 gap-4">
+      <div class="w-full h-auto grid grid-cols-3 gap-4">
+        <div class="bg-[#f6f6f6] p-8 rounded h-full bg-white rounded-lg shadow">
+          <h3 class="text-xl font-medium">Total Laki-laki</h3>
+          <h1 class="text-[4rem] font-bold"><?= $user->getTotalMale(); ?></h1>
+          <span class="text-[#485FC7]"><?= $user->getTotalMale(); ?> dari <?= $user->getTotalData(); ?></span>
         </div>
-        <div class="w-[240px] h-[240px]">
+        <div class="bg-[#f6f6f6] p-8 rounded h-full bg-white rounded-lg shadow">
+          <h3 class="text-xl font-medium">Total Perempuan</h3>
+          <h1 class="text-[4rem] font-bold"><?= $user->getTotalFemale(); ?></h1>
+          <span class="text-[#485FC7]"><?= $user->getTotalFemale(); ?> dari <?= $user->getTotalData(); ?></span>
+        </div>
+        <?php if($user->getTotalData() > 0): ?>
+        <div class="w-[220px] h-[220px] bg-white p-4 rounded-lg shadow">
           <canvas id="myChart"></canvas>
         </div>
+        <?php else: ?>
+          <div class="w-[220px] h-[220px] bg-white p-4 rounded-lg shadow flex flex-col justify-center items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="red"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+            <h1 class="text-red-800">Data Masih kosong</h1>
+          </div>
+        <?php endif; ?>
       </div>
-      <div class="w-full bg-blue-200"></div>
+      <!-- Table Data -->
+      <div class="h-full w-full bg-white p-6 rounded-lg shadow">
+        <div class="flex justify-between items-center mb-6">
+          <h1 class="text-[2rem] font-bold text-[#485FC7]">Data Teman</h1>
+          <a href="cetak.php" class="bg-[#485FC7] py-2 px-4 rounded text-white font-semibold hover:bg-[#485FC7]/90 hover:text-white">Unduh Data</a>
+        </div>
+        <table id="example" class="table is-striped w-full">
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Nama</th>
+              <th>Jenis Kelamin</th>
+              <th>Usia</th>
+            </tr>            
+          </thead>
+          <tbody>
+            <?php
+            $i = 1;
+            foreach($rows = $user->getAllData() as $row): 
+            ?>
+              <tr>
+                <td><?= $i++ ?></td>
+                <td><?= $row["name"]; ?></td>
+                <td><?= $row["gender"]; ?></td>
+                <td><?= $row["age"]; ?></td>
+              </tr>
+            <?php endforeach; ?>
+          </tbody>
+        </table>
+      </div>
     </div>
 
   </div>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+  <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bulma.min.js"></script>
   <script>
+    $(document).ready(function () {
+        $('#example').DataTable({
+          "lengthChange": false,
+          "pageLength": 7
+        })
+    });
+
     const ctx = document.getElementById('myChart');
 
     new Chart(ctx, {
       type: 'doughnut',
       data: {
-        // labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+        labels: ['Laki-laki dibawah 19', 'Laki-laki diatas 20', 'Perempuan dibawah 19', 'Perempuan diatas 20'],
         datasets: [{
-          label: '1 of Votes',
-          data: [12, 19, 3, 5],
+          label: 'Total',
+          data: [<?= $user->getMaleUnder19(); ?> , <?= (int)$user->getMaleAbove19(); ?>, <?= $user->getFemaleUnder19(); ?>, <?= $user->getFemaleAbove19(); ?>,],
+          backgroundColor: [
+            '#485FC7',
+            '#f5891d',
+            '#f14668',
+            '#1b998b'
+          ]
         }]
       },
       options: {
-        scales: {
-          // y: {
-          //   beginAtZero: true
-          // }
-        },
-        legend: {
-                display: true,
-                labels: {
-                    color: 'rgb(255, 99, 132)'
-                }
-            }
-      }
+        plugins: {
+          legend: {
+            display: false,
+            position: 'right'
+          },
+          datalabels: {
+            color: 'white',
+            formatter: ((context, args) => {
+              var result = (context/<?= $user->getTotalData() ?>) * 100;
+              var result = result.toFixed(1)+'%';
+              return result;
+            })
+          }
+        }
+      },
+      plugins: [ChartDataLabels]
     });
   </script>
 </body>
